@@ -12,4 +12,4 @@
 * 안드로이드 permission 사용 및 아이폰, 안드로이드 앱 발행<br>
 
 
-<img src="/image_md/Project1.gif" width="200" height="400"/>
+<img src="/image_md/Project1.gif" width="300" height="640"/>
