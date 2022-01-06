@@ -7,9 +7,8 @@
 
 
 <br><br>
-## 1.Contact_App
+## 1. Contact_App
 * UI 개발 및 Flutter 기본 문법 익히기<br>
-* 안드로이드 permission 사용 및 아이폰, 안드로이드 앱 발행<br>
-
+* 안드로이드 permission 사용 및 아이폰, 안드로이드 앱 발행
 
 <img src="/image_md/Contact_App.gif" width="300" height="640"/>
