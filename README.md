@@ -19,4 +19,4 @@
 * 커스텀 위젯 공부
 * style, http_package, convert, fluttertoast_pakage
 
-<img src="/image_md/Instagram_alpha.gif" width="300" height="640"/>
+<img src="/image_md/Instagram_alpha.gif" width="350" height="640"/>
