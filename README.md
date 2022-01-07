@@ -16,7 +16,7 @@
 
 ## 2. Instagram_Clone_App
 * 서버 통신을 중점으로 공부 (db와의 통신)
-* 커스텀 위젯 공부
+* 커스텀 위젯 공부, stack page
 * style, http_package, convert, fluttertoast_pakage
 
 <img src="/image_md/Instagram_alpha.gif" width="350" height="640"/>
