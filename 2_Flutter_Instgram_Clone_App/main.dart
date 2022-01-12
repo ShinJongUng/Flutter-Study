@@ -1,13 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:instagram/Shop.dart';
 import 'style.dart' as style;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:photofilters/photofilters.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
+import 'notification.dart';
+
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 
+
+
+
+void main() async{
+
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (c) =>Store1()),
+        ],
+        child: MaterialApp(
+          theme: style.theme,
+          home: MyApp(),
+        ),
+      ));
+}
 
 void showToast(String message){
   Fluttertoast.showToast(
@@ -20,14 +47,6 @@ void showToast(String message){
       webBgColor: 'FF0000',
       webPosition: 'center'
   );
-}
-
-void main() {
-  runApp(
-      MaterialApp(
-        theme: style.theme,
-        home: MyApp(),
-      ));
 }
 
 class MyApp extends StatefulWidget {
@@ -44,6 +63,14 @@ class MyAppState extends State<MyApp> {
   var userContent;
 
   @override
+
+
+
+  saveData() async{
+    var storage = await SharedPreferences.getInstance();
+    storage.setString('name', 'john');
+  }
+
   getData() async{
     var semiData = await http.get(Uri.parse('https://codingapple1.github.io/app/data.json'));
     if(semiData.statusCode == 200){
@@ -80,6 +107,7 @@ class MyAppState extends State<MyApp> {
   void initState(){
     super.initState();
     getData();
+    initNotification();
     showToast('Data Access');
   }
 
@@ -115,7 +143,13 @@ class MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+
+    MediaQuery.of(context).size.width;
+
     return Scaffold(
+      floatingActionButton: FloatingActionButton(child: Text('+'), onPressed: (){
+        showNotification2();
+        },),
       appBar: AppBar(leading: IconButton(
         icon: Image.asset('assets/AppBarSvg.png'),
         onPressed: (){},
@@ -136,11 +170,11 @@ class MyAppState extends State<MyApp> {
             );
           }, iconSize: 28,),
             IconButton(icon:Icon(Icons.favorite_border), onPressed: (){},iconSize: 28,),
-            IconButton(icon:Icon(Icons.label_important_outline_rounded), onPressed: (){},iconSize: 28,),],
+            IconButton(icon:Icon(Icons.send_outlined), onPressed: (){},iconSize: 28,),],
         )],
       ),
 
-      body: [HomeKey(data: data, getNewData1 : getNewData1, getNewData2 : getNewData2), Text('2'), Text('3'), Text('4'), Text('5')][underIndex],
+      body: [HomeKey(data: data, getNewData1 : getNewData1, getNewData2 : getNewData2), Text('2'), Text('3'), Shop(), Text('5')][underIndex],
 
       bottomNavigationBar: BottomWidget(underIndex: underIndex, bottomWidgetSetState : bottomWidgetSetState)
     );
@@ -234,14 +268,18 @@ class _HomeKeyState extends State<HomeKey> {
                     children: [
                       IconButton( padding: EdgeInsets.fromLTRB(0, 0, 10, 5), constraints: BoxConstraints(), onPressed: (){}, icon: Icon(Icons.favorite_border), iconSize: 20, ),
                       IconButton( padding: EdgeInsets.fromLTRB(0, 0, 10, 5), constraints: BoxConstraints(), onPressed: (){}, icon: Icon(Icons.chat_bubble_outline_outlined), iconSize: 20,),
-                      IconButton( padding: EdgeInsets.fromLTRB(0, 0, 0, 5), constraints: BoxConstraints(), onPressed: (){}, icon: Icon(Icons.adjust_outlined), iconSize: 20,)
+                      IconButton( padding: EdgeInsets.fromLTRB(0, 0, 0, 5), constraints: BoxConstraints(), onPressed: (){}, icon: Icon(Icons.send_outlined), iconSize: 20,)
                     ],
                   ),
                   Container( margin: EdgeInsets.fromLTRB(0, 0, 0, 5), child: Text('좋아요 ${widget.data[0]['likes']}개',)),
+                  GestureDetector(onTap: (){
+                    Navigator.push(context,
+                      CupertinoPageRoute(builder: (c) => ProfileKey())
+                    );
+                  },child: Text(widget.data[i]['user'], style: TextStyle(fontWeight: FontWeight.bold,))),
                   Text.rich(TextSpan(
                       children: [
-                        TextSpan(text: widget.data[i]['user'], style: TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(text: ' ${widget.data[i]['content']}', )
+                        TextSpan(text: '${widget.data[i]['content']}', )
                       ]
                   ))
                 ],
@@ -298,7 +336,7 @@ class _UploadKeyState extends State<UploadKey> {
         body: [Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.file(widget.userImage),
+              Image.file(widget.userImage),
           ],
         ), Container(
           margin: EdgeInsets.all(20),
@@ -308,6 +346,85 @@ class _UploadKeyState extends State<UploadKey> {
               children:[Image.file(widget.userImage, width: 40,), Container(margin: EdgeInsets.fromLTRB(10, 0, 0, 0), width: 300, height: 50, child: TextField(onChanged: (text){widget.setUserContent(text);}, decoration: InputDecoration(labelText: '문구 입력...'),))]
           ),
         ) ][uploadIndex]
+    );
+  }
+}
+
+class Store1 extends ChangeNotifier{
+  var name = 'JongungShin';
+  var followers = 0;
+  var profileImage = [];
+
+  getData() async {
+    var result = await http.get(Uri.parse('https://codingapple1.github.io/app/profile.json'));
+    var result2 = jsonDecode(result.body);
+    profileImage = result2;
+    notifyListeners();
+  }
+  var followbuttonOn = false;
+  flb(){
+    if(followbuttonOn == false){
+      followers++;
+      followbuttonOn = true;
+    }
+    else{
+      followers--;
+      followbuttonOn = false;
+    }
+    notifyListeners();
+  }
+}
+
+class ProfileKey extends StatefulWidget {
+  ProfileKey({Key? key}) : super(key: key);
+
+  @override
+  State<ProfileKey> createState() => _ProfileKeyState();
+}
+
+class _ProfileKeyState extends State<ProfileKey> {
+  @override
+  void initState() {
+    context.read<Store1>().getData();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(context.watch<Store1>().name), titleTextStyle:  TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20),),
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(child: ProfileHeader(),),
+          SliverGrid(delegate: SliverChildBuilderDelegate(
+                  (c, i)=> Container(margin: EdgeInsets.all(1),child: Image.network(context.watch<Store1>().profileImage[i]),),
+                  childCount: 6
+          ),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3))
+        ],
+      ),
+      bottomNavigationBar: BottomWidget(),
+    );
+  }
+}
+
+class ProfileHeader extends StatelessWidget {
+  const ProfileHeader({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [CircleAvatar(
+        radius: 30,
+        backgroundColor: Colors.grey,
+      ),
+        Text('팔로워 ${context.watch<Store1>().followers}명'),
+        ElevatedButton(onPressed: (){
+          context.read<Store1>().flb();
+
+        }, child: Text('버튼')),
+      ],
     );
   }
 }
