@@ -33,6 +33,6 @@
 
 - FCM을 통한 알림 기능 구현
 - 그래프 라이브러리 사용
-- firebase 로그인 구현
+- firebase 사용하여 로그인 구현
 
 <img src="/image_md/first.gif" width="300" height="640"/>
