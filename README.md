@@ -4,7 +4,7 @@
 
 <br>
 
-> > Android studio 및 에뮬레이션을 사용하여 개발 되었습니다.
+> > Android studio ide를 사용하여 개발 되었습니다.
 
 <br><br>
 
@@ -33,5 +33,6 @@
 
 - FCM을 통한 알림 기능 구현
 - 그래프 라이브러리 사용
+- firebase 로그인 구현
 
 <img src="/image_md/first.gif" width="300" height="640"/>
